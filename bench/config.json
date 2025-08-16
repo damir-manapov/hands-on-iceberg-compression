@@ -1,0 +1,11 @@
+{
+  "cases": [
+    { "label": "small",  "size": 1000,   "strategy": "A" },
+    { "label": "medium", "size": 100000, "strategy": "A" },
+    { "label": "large",  "size": 1000000, "strategy": "A" },
+    { "label": "small-B","size": 1000,   "strategy": "B" },
+    { "label": "medium-B","size": 100000,"strategy": "B" }
+  ],
+  "warmupIters": 1,
+  "measureIters": 5
+}
