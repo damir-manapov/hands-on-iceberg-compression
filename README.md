@@ -74,3 +74,15 @@ WITH (sorted_by = ARRAY['order_date']);
 
 ![bytes_per_row](./assets/bytes_per_row.svg)
 ![total_data_bytes](./assets/total_data_bytes.svg)
+
+## Algorithms
+You need [Mermaid Preview](https://marketplace.visualstudio.com/items?itemName=vstirbu.vscode-mermaid-preview) extension to see gparhs in vsc
+
+### Example graph
+```mermaid
+graph LR
+    A[Square Rect] -- Link text --> B((Circle))
+    A --> C(Round Rect)
+    B --> D{Rhombus}
+    C --> D
+```
