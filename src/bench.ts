@@ -78,8 +78,8 @@ const CODECS: Array<{ codec: "zstd" | "gzip" | "snappy" | "lz4"; levels: number[
 // Load plan
 const LOAD = {
   startId: Number(process.env.START_ID ?? "1"),
-  totalRows: Number(process.env.TOTAL_ROWS ?? `${10_000_000}`),   // e.g., 10M
-  batchRows: Number(process.env.BATCH_ROWS ?? `${1_000_000}`),    // e.g., 5M per insert
+  totalRows: Number(process.env.TOTAL_ROWS ?? `${100_000}`),   // e.g., 10M
+  batchRows: Number(process.env.BATCH_ROWS ?? `${100_000}`),    // e.g., 5M per insert
   concurrency: Number(process.env.CONCURRENCY ?? "4"),
   createBaseSchema: (process.env.CREATE_BASE_SCHEMA ?? "true") === "true",
   compactAfterLoad: (process.env.COMPACT_AFTER_LOAD ?? "true") === "true",
@@ -126,7 +126,6 @@ class TrinoClient {
     return all as T[];
   }
   private async _run<T = any>(sql: string, collect: boolean): Promise<T[]> {
-    console.log(sql);
     const res = await fetch(`${this.baseUrl()}/v1/statement`, {
       method: "POST",
       headers: { "Content-Type": "text/plain; charset=utf-8", ...this.headers() },
@@ -268,7 +267,7 @@ function createVariantTableSQLs(cfg: TableConfig, name: string, codec: string, l
   const props: string[] = [];
   const extraProps: [string, string][] = [];
   if (cfg.format) props.push(`format = '${cfg.format}'`);
-  //   if (cfg.partitioning?.length) props.push(`partitioning = ARRAY[${cfg.partitioning.map(p => `'${p}'`).join(", ")}]`);
+  // if (cfg.partitioning?.length) props.push(`partitioning = ARRAY[${cfg.partitioning.map(p => `'${p}'`).join(", ")}]`); // FIXME
   if (cfg.tableProperties) {
     for (const [k,v] of Object.entries(cfg.tableProperties)) {
       const val = typeof v === "string" ? `'${v}'` : (typeof v === "boolean" ? (v ? "true":"false") : `${v}`);
@@ -277,9 +276,6 @@ function createVariantTableSQLs(cfg: TableConfig, name: string, codec: string, l
   }
   extraProps.push(["write.parquet.compression-codec", codec]);
   if (typeof level === "number") extraProps.push(["write.parquet.compression-level", level.toString()]);
-
-  // `extra_properties = map_from_entries(ARRAY[ROW('write.parquet.compression-codec', 'zstd'), ROW('write.parquet.compression-level', '9')]);
-  // `map_from_entries(ARRAY[ROW('write.parquet.compression-codec', 'zstd'), ROW('write.parquet.compression-level', '9')]);
 
   // There is some problems setting extra_properties via WITH in CRETE statement, so setting them by ALTER stmnt
   const alterByExtraProps = extraProps.map(([key, value]) => `ALTER TABLE ${fq} SET PROPERTIES extra_properties = map_from_entries(ARRAY[ROW('${key}', '${value}')])`);
@@ -373,7 +369,7 @@ async function loadTable(client: TrinoClient, limiter: Limiter, cfg: TableConfig
   const pending = batches.filter(b => !cp.completedBatches.includes(b.index));
 
   await Promise.all(pending.map(b => limiter.run(async () => {
-    const label = `${tableName} #${b.index} [${b.start}..${b.end}]`;
+    const label = `${tableName} #${b.index} [${humanNumber(b.start)}..${humanNumber(b.end)}]`;
     const sql = buildInsertSQL(b.start, b.end, cfg, tableName);
     const t0 = Date.now();
     try {
@@ -404,15 +400,9 @@ async function optimizeTable(client: TrinoClient, fq: string) {
 type SizeRow = { table_name: string; codec: string; level: number; rows: number; data_bytes: number; bytes_per_row: number; manifest_bytes?: number; total_bytes?: number };
 
 async function measureSizes(client: TrinoClient, cfg: TableConfig, name: string, codec: string, level: number): Promise<SizeRow> {
-  console.log('measureSizes');
   const filesTbl = `"${name}$files"`;
   const baseSQL = `SELECT SUM(file_size_in_bytes) AS data_bytes, SUM(record_count) AS rows, (SUM(file_size_in_bytes) / NULLIF(SUM(record_count),0)) AS bytes_per_row FROM ${cfg.catalog}.${cfg.schema}.${filesTbl}`;
-  console.log('baseSQL');
-  console.log(baseSQL);
-  console.log(`params: ${cfg.catalog}.${cfg.schema}.${filesTbl}`);
   const filesRes = await client.query<{data_bytes: number; rows: number; bytes_per_row: number}>(baseSQL);
-  console.log('filesRes');
-  console.log(JSON.stringify(filesRes, null, 1));
   const data_bytes = Number(filesRes?.[0]?.data_bytes ?? 0);
   const rows = Number(filesRes?.[0]?.rows ?? 0);
   const bytes_per_row = Number(filesRes?.[0]?.bytes_per_row ?? 0);
@@ -436,8 +426,6 @@ async function measureSizes(client: TrinoClient, cfg: TableConfig, name: string,
   return { table_name: name, codec, level, rows, data_bytes, bytes_per_row, manifest_bytes, total_bytes };
 }
 
-
-
 function humanSize(bytes: number | null | undefined): string {
   if (bytes == null) return "";
   if (bytes === 0) return "0 B";
@@ -451,6 +439,8 @@ function humanSize(bytes: number | null | undefined): string {
   }
   return `${b.toFixed(1)} ${units[u]}`;
 }
+
+const humanNumber = (num: number | null | undefined): string => num?.toLocaleString("en-US").replaceAll(',', '_') ?? '';
 
 /* =========================
    4) MAIN
@@ -471,9 +461,6 @@ async function main() {
   };
   const client = new TrinoClient(trino);
   const limiter = new Limiter(LOAD.concurrency);
-
-  // // Set session params
-  // await client.execute("SET SESSION iceberg.max_commit_retry = 8");
 
   // 1) Base schema + base table
   if (LOAD.createBaseSchema) {
@@ -511,7 +498,6 @@ async function main() {
   // 3) Measure sizes
   const results: SizeRow[] = [];
   for (const v of variants) {
-    console.log('!!!!!!!!!!! variant');
     const r = await measureSizes(client, CONFIG, v.name, v.codec, v.level);
     results.push(r);
   }
@@ -524,7 +510,7 @@ async function main() {
     table: r.table_name,
     codec: r.codec,
     level: r.level,
-    rows: r.rows.toLocaleString("en-US"),
+    rows: humanNumber(r.rows),
     data_bytes: Math.round(r.data_bytes),
     data_human: humanSize(r.data_bytes),
     bytes_per_row: Math.round(r.bytes_per_row),
@@ -542,7 +528,7 @@ async function main() {
     ...(LOAD.includeManifestBytes ? ["manifest_bytes","manifest_human","total_bytes","total_human"] : [])
   ];
   const lines = [headers.join(",")].concat(results.map(r => [
-    r.table_name, r.codec, String(r.level), r.rows.toLocaleString("en-US"),
+    r.table_name, r.codec, String(r.level), humanNumber(r.rows),
     String(r.data_bytes), humanSize(r.data_bytes), String(r.bytes_per_row),
     ...(LOAD.includeManifestBytes ? [
       String(r.manifest_bytes ?? 0),

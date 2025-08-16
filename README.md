@@ -69,7 +69,8 @@ WITH (sorted_by = ARRAY['order_date']);
 
 # Benchmark
 
-Run: `npm run bench`
-путукфеу срфке: `npm run plot`
+* Run: `npm run bench`
+* Generate charts: `npm run plot`
 
-![Benchmarks](./assets/benchmarks.svg)
+![bytes_per_row](./assets/bytes_per_row.svg)
+![total_data_bytes](./assets/total_data_bytes.svg)
