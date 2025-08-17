@@ -11,6 +11,7 @@ It cotains docker compose to get all up and runnig, generates charts and gives y
 * Generate charts (uses svg to not bloat git with binary data): `npm run plot`
 * Stop environment with volumes deletion: `docker compose down -v`
 * Clear `.checkpoints` if you want to rerun generation: `npm run rmcheckpoints`
+* Del environments and restart from scratch: `docker compose down -v && docker compose up -d && sleep 5 && npm run rebench`
 
 # Start environment
 ```sh
