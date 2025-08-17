@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "rmcheckpoints": "rm -rf .checkpoints",
+    "rebench": "npm run rmcheckpoints & npm run bench",
     "bench": "tsx src/bench.ts",
     "plot": "tsx src/plot.ts",
     "bench:all": "npm run bench && npm run plot"

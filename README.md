@@ -4,13 +4,13 @@ Project compares storage size with different copmression codecs and levels, also
 
 It cotains docker compose to get all up and runnig, generates charts and gives you ability to define shema with stings, numbers, dates and random elements from an array.
 
-* Define compression codecs and their respective compression levels: 
-* Define your schema: 
+* Define compression codecs and their respective compression levels: `src/config/codecs.ts`
+* Define your schema: `src/config/tableConfig.ts`
 * Run environment: `docker compose up -d`
-* Run bench: `npm run bench`
+* Run bench: `npm run bench` or `npm run rebench` if you would like to start from scratch deleting checkpoints
 * Generate charts (uses svg to not bloat git with binary data): `npm run plot`
 * Stop environment with volumes deletion: `docker compose down -v`
-* Clear `.checkpoints` if you want to rerun generation: `rm -rf .checkpoints`
+* Clear `.checkpoints` if you want to rerun generation: `npm run rmcheckpoints`
 
 # Start environment
 ```sh
@@ -76,7 +76,7 @@ WITH (sorted_by = ARRAY['order_date']);
 ![total_data_bytes](./assets/total_data_bytes.svg)
 
 ## Algorithms
-You need [Mermaid Preview](https://marketplace.visualstudio.com/items?itemName=vstirbu.vscode-mermaid-preview) extension to see gparhs in vsc
+You need [Mermaid Preview](https://marketplace.visualstudio.com/items?itemName=vstirbu.vscode-mermaid-preview) extension to see gparhs in [vsc](https://code.visualstudio.com/)
 
 ### Example graph
 ```mermaid

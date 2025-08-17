@@ -1,4 +1,10 @@
 services:
+  dummy-wait:
+    image: alpine
+    depends_on:
+      trino:
+        condition: service_healthy
+
   minio:
     image: quay.io/minio/minio:latest
     container_name: minio
