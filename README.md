@@ -4,6 +4,7 @@ Project compares storage size with different copmression codecs and levels, also
 
 It cotains docker compose to get all up and runnig, generates charts and gives you ability to define shema with stings, numbers, dates and random elements from an array.
 
+* Start environment `docker compose up -d`
 * Define compression codecs and their respective compression levels: `src/config/codecs.ts`
 * Define your schema: `src/config/tableConfig.ts`
 * Run environment: `docker compose up -d`

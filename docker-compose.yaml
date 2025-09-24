@@ -63,15 +63,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      minio:
-        condition: service_healthy
     environment:
-      # Use JDBC version store with Postgres
-      NESSIE_VERSION_STORE_TYPE: JDBC
+      QUARKUS_HTTP_PORT: 19120
+      QUARKUS_HTTP_HOST: 0.0.0.0
+      QUARKUS_LOG_LEVEL: INFO
+      QUARKUS_LOG_CATEGORY__ORG_PROJECTNESSIE: DEBUG
+      QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: update
       QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/nessie
       QUARKUS_DATASOURCE_USERNAME: nessie
       QUARKUS_DATASOURCE_PASSWORD: nessie
-      # (optional) tune http/threads via JAVA_OPTS_APPEND if you like
     ports:
       - "19120:19120"   # Nessie API
     healthcheck:
@@ -97,13 +97,18 @@ services:
     ports:
       - "8080:8080"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/v1/info"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/v1/info | grep -q '\"starting\"[[:space:]]*:[[:space:]]*false'"]
       interval: 5s
       timeout: 3s
       retries: 60
     volumes:
-      # mount catalog files (we provide content below)
       - ./trino/catalog:/etc/trino/catalog:ro
+      # 2gb
+      # - ./trino/config2g.properties:/etc/trino/config.properties:ro
+      # - ./trino/jvm2g.config:/etc/trino/jvm.config:ro
+      # 4gb
+      # - ./trino/config4g.properties:/etc/trino/config.properties:ro
+      # - ./trino/jvm4g.config:/etc/trino/jvm.config:ro
     networks: [lake]
 
 networks:
