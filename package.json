@@ -2,6 +2,8 @@
   "name": "hands-on-iceberg-compression",
   "version": "1.0.0",
   "main": "index.js",
+  "author": "Damir Manapov",
+  "license": "MIT",
   "scripts": {
     "rmcheckpoints": "rm -rf .checkpoints",
     "rebench": "yarn rmcheckpoints & yarn bench",
@@ -20,7 +22,6 @@
     "compose:clean": "yarn compose:base down -v --remove-orphans",
     "compose:exec": "yarn compose:base exec"
   },
-  "author": "Damir Manapov",
   "devDependencies": {
     "@types/node": "^24.3.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
