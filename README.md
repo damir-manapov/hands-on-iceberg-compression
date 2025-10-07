@@ -25,6 +25,8 @@ You can manage the stack using convenient yarn scripts (wrapping `docker compose
 * Logs (follow): `yarn compose:logs`
 * Status: `yarn compose:ps`
 * Clean teardown (remove volumes/orphans): `yarn compose:clean`
+* Execute in container: `yarn compose:exec -it trino trino`
+* Base command: `yarn compose:base` (for custom docker compose commands)
 
 # Start environment
 ```sh
@@ -37,7 +39,7 @@ yarn compose:up
 * MinIO console: http://localhost:9001 (user/pass from env)
 
 # Working with iceberg through Trino
-* Enter trino console in container: `docker compose exec -it trino trino`
+* Enter trino console in container: `yarn compose:exec -it trino trino`
 * Check Trino works: `SELECT 1;`
 * Check Trino node version: `SELECT node_version FROM system.runtime.nodes;`
 * `SHOW CATALOGS;`
@@ -64,19 +66,19 @@ ALTER TABLE iceberg.lab.events_zstd_l06 EXECUTE optimize;
 
 * Down with volume remove: `yarn compose:clean`
 * All logs: `yarn compose:logs`
-* Logs of the container: `docker compose logs trino`
+* Logs of the container: `yarn compose:base logs trino`
 * Force recreate container: `yarn compose:up --force-recreate trino`
-* Check iceberg.properties inside Trino: `docker compose exec -it trino sh -lc 'grep -n "allowed-extra" -n /etc/trino/catalog/iceberg.properties; echo; cat /etc/trino/catalog/iceberg.properties'`
-* Check Trino session catalog: `docker compose exec -it trino trino --execute "SHOW CATALOGS"`
+* Check iceberg.properties inside Trino: `yarn compose:exec -it trino sh -lc 'grep -n "allowed-extra" -n /etc/trino/catalog/iceberg.properties; echo; cat /etc/trino/catalog/iceberg.properties'`
+* Check Trino session catalog: `yarn compose:exec -it trino trino --execute "SHOW CATALOGS"`
 * Try to create trino iceberg catalog manually with compression: ```
-docker compose exec -it trino trino --execute "
+yarn compose:exec -it trino trino --execute "
 CREATE SCHEMA IF NOT EXISTS iceberg.lab;
 CREATE TABLE IF NOT EXISTS iceberg.lab._prop_test (id bigint)
 WITH (
   \"write.parquet.compression-codec\" = 'zstd'
 )"```
-* Check Trino node version: `docker compose exec -it trino trino --execute "SELECT node_version FROM system.runtime.nodes"`
-* Check table properties: `docker compose exec -it trino trino --execute "SHOW CREATE TABLE iceberg.lab.events_base"`
+* Check Trino node version: `yarn compose:exec -it trino trino --execute "SELECT node_version FROM system.runtime.nodes"`
+* Check table properties: `yarn compose:exec -it trino trino --execute "SHOW CREATE TABLE iceberg.lab.events_base"`
 
 WITH (partitioning = ARRAY['month(order_date)', 'bucket(account_number, 10)', 'country']);
 WITH (sorted_by = ARRAY['order_date']);

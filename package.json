@@ -11,12 +11,14 @@
     "build": "tsc -p tsconfig.json",
     "lint": "tsc --noEmit",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
-    "compose:up": "docker compose up -d",
-    "compose:down": "docker compose down",
+    "compose:base": "docker compose -f compose/docker-compose.yaml",
+    "compose:up": "yarn compose:base up -d",
+    "compose:down": "yarn compose:base down",
     "compose:restart": "yarn compose:down && yarn compose:up",
-    "compose:logs": "docker compose logs -f --tail=300",
-    "compose:ps": "docker compose ps",
-    "compose:clean": "docker compose down -v --remove-orphans"
+    "compose:logs": "yarn compose:base logs -f --tail=300",
+    "compose:ps": "yarn compose:base ps",
+    "compose:clean": "yarn compose:base down -v --remove-orphans",
+    "compose:exec": "yarn compose:base exec"
   },
   "author": "Damir Manapov",
   "devDependencies": {
