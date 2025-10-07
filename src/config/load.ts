@@ -1,9 +1,9 @@
 // Load plan
 export const LOAD = {
   startId: Number(process.env.START_ID ?? "1"),
-  // totalRows: Number(process.env.TOTAL_ROWS ?? `${100_000_000}`),   // e.g., 10M
+  totalRows: Number(process.env.TOTAL_ROWS ?? `${100_000_000}`),   // e.g., 10M
   // totalRows: Number(process.env.TOTAL_ROWS ?? `${10_000_000}`), // e.g., 10M
-  totalRows: Number(process.env.TOTAL_ROWS ?? `${1_000_000}`), // e.g., 10M
+  // totalRows: Number(process.env.TOTAL_ROWS ?? `${1_000_000}`), // e.g., 10M
   // totalRows: Number(process.env.TOTAL_ROWS ?? `${10_000_000}`),   // e.g., 10M
   // totalRows: Number(process.env.TOTAL_ROWS ?? `${20_000_000}`),   // e.g., 10M
   // totalRows: Number(process.env.TOTAL_ROWS ?? `${1_000_000}`),   // e.g., 10M
@@ -17,7 +17,7 @@ export const LOAD = {
   resultsCsv: process.env.RESULTS_CSV ?? "results_sizes.csv",
 };
 
-// 1ml -> 300mb
+// 1ml -> 300mb, 1.1min
 // 10ml -> 3gb
 // 100ml -> 30gb
-// milliard -> 300gb
+// billion -> 300gb

@@ -29,7 +29,7 @@ import { CODECS } from "../config/codecs";
 function formatETA(ms: number): string {
   if (ms < 1000) return `${Math.round(ms)}ms`;
   if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-  if (ms < 3600000) return `${(ms / 60000).toFixed(1)}m`;
+  if (ms < 3600000) return `${(ms / 60000).toFixed(1)}min`;
   return `${(ms / 3600000).toFixed(1)}h`;
 }
 
@@ -228,7 +228,7 @@ async function main() {
       const durationMs = Date.now() - t0;
       const durationMinutes = (durationMs / 60000).toFixed(1);
       console.log(
-        `Load finished for ${name} in ${durationMinutes}m`
+        `Load finished for ${name} in ${durationMinutes}min`
       );
 
       if (LOAD.compactAfterLoad) {
