@@ -8,6 +8,7 @@
     "bench": "tsx src/bench.ts",
     "plot": "tsx src/plot.ts",
     "bench:all": "yarn bench && yarn plot",
+    "build": "tsc -p tsconfig.json",
     "lint": "tsc --noEmit",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "compose:up": "docker compose up -d",
