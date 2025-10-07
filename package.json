@@ -1,7 +1,6 @@
 {
   "name": "hands-on-iceberg-compression",
   "version": "1.0.0",
-  "main": "index.js",
   "author": "Damir Manapov",
   "license": "MIT",
   "scripts": {
