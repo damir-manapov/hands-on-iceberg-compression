@@ -8,6 +8,8 @@
     "bench": "tsx src/bench.ts",
     "plot": "tsx src/plot.ts",
     "bench:all": "yarn bench && yarn plot",
+    "lint": "tsc --noEmit",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "compose:up": "docker compose up -d",
     "compose:down": "docker compose down",
     "compose:restart": "yarn compose:down && yarn compose:up",
@@ -18,9 +20,12 @@
   "author": "Damir Manapov",
   "devDependencies": {
     "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
     "chart.js": "^4.5.0",
     "chartjs-node-canvas": "^5.0.0",
     "csv-parse": "^6.1.0",
+    "eslint": "^8.57.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.4",
     "typescript": "^5.9.2"

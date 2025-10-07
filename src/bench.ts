@@ -47,7 +47,9 @@ async function loadTable(
 ) {
   const batches = makeBatches(startId, totalRows, batchRows);
   let cp: { completedBatches: number[] } = { completedBatches: [] };
-  try { cp = JSON.parse(fs.readFileSync(cpFile, "utf-8")); } catch {}
+  try { cp = JSON.parse(fs.readFileSync(cpFile, "utf-8")); } catch {
+    // Checkpoint file doesn't exist or is invalid, start fresh
+  }
   const pending = batches.filter(b => !cp.completedBatches.includes(b.index));
 
   await Promise.all(pending.map(b => limiter.run(async () => {

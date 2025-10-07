@@ -4,15 +4,16 @@ Project compares storage size with different copmression codecs and levels, also
 
 It cotains docker compose to get all up and runnig, generates charts and gives you ability to define shema with stings, numbers, dates and random elements from an array.
 
-* Start environment `docker compose up -d`
+* Start environment `yarn compose:up`
 * Define compression codecs and their respective compression levels: `src/config/codecs.ts`
 * Define your schema: `src/config/tableConfig.ts`
-* Run environment: `docker compose up -d`
+* Run environment: `yarn compose:up`
 * Run bench: `yarn bench` or `yarn rebench` if you would like to start from scratch deleting checkpoints
 * Generate charts (uses svg to not bloat git with binary data): `yarn plot`
-* Stop environment with volumes deletion: `docker compose down -v`
+* Lint code: `yarn lint` (TypeScript type checking) or `yarn lint:fix` (ESLint with auto-fix)
+* Stop environment with volumes deletion: `yarn compose:clean`
 * Clear `.checkpoints` if you want to rerun generation: `yarn rmcheckpoints`
-* Del environments and restart from scratch: `docker compose down -v && docker compose up -d && sleep 5 && yarn rebench`
+* Del environments and restart from scratch: `yarn compose:clean && yarn compose:up && sleep 5 && yarn rebench`
 
 ## Docker Compose via yarn scripts
 
@@ -64,7 +65,7 @@ ALTER TABLE iceberg.lab.events_zstd_l06 EXECUTE optimize;
 * Down with volume remove: `yarn compose:clean`
 * All logs: `yarn compose:logs`
 * Logs of the container: `docker compose logs trino`
-* Force recreate container: `docker compose up -d --force-recreate trino`
+* Force recreate container: `yarn compose:up --force-recreate trino`
 * Check iceberg.properties inside Trino: `docker compose exec -it trino sh -lc 'grep -n "allowed-extra" -n /etc/trino/catalog/iceberg.properties; echo; cat /etc/trino/catalog/iceberg.properties'`
 * Check Trino session catalog: `docker compose exec -it trino trino --execute "SHOW CATALOGS"`
 * Try to create trino iceberg catalog manually with compression: ```
@@ -79,6 +80,11 @@ WITH (
 
 WITH (partitioning = ARRAY['month(order_date)', 'bucket(account_number, 10)', 'country']);
 WITH (sorted_by = ARRAY['order_date']);
+
+# Development
+
+* Type check: `yarn lint`
+* Lint and fix: `yarn lint:fix`
 
 # Benchmark
 

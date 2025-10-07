@@ -31,7 +31,6 @@ export class TrinoClient {
     });
     if (!res.ok) throw new Error(`Trino POST ${res.status}: ${await res.text()}`);
     let payload: any = await res.json();
-    const rows: any[] = [];
     let colNames: string[] | null = payload.columns?.map((c: any) => c.name) ?? null;
     const rowsArr: any[][] = [];
 
@@ -49,9 +48,8 @@ export class TrinoClient {
     };
     take(payload);
 
-    while (true) {
+    while (payload.nextUri) {
       if (payload.error) throw new Error(`Trino error: ${payload.error.message}`);
-      if (!payload.nextUri) break;
       const poll = await fetch(payload.nextUri, { headers: this.headers() });
       if (!poll.ok) throw new Error(`Trino poll ${poll.status}: ${await poll.text()}`);
       payload = await poll.json();
