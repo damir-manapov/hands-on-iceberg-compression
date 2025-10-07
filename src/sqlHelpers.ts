@@ -111,7 +111,7 @@ export function createBaseTableSQL(cfg: TableConfig) {
 
 export function createSelectExamplesSQL(cfg: TableConfig, tableName: string) {
   const fq = `${cfg.catalog}.${cfg.schema}.${tableName}`;
-  return `SELECT * FROM ${fq} LIMIT 3`;
+  return `SELECT * FROM ${fq} LIMIT 1`;
 }
 
 export function createVariantTableSQLs(
