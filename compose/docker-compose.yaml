@@ -72,6 +72,8 @@ services:
       QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/nessie
       QUARKUS_DATASOURCE_USERNAME: nessie
       QUARKUS_DATASOURCE_PASSWORD: nessie
+      NESSIE_VERSION_STORE_TYPE: JDBC
+      NESSIE_VERSION_STORE_JDBC_DATASOURCE_NAME: nessie
     ports:
       - "19120:19120"   # Nessie API
     healthcheck:

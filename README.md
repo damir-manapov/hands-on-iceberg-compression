@@ -65,6 +65,8 @@ ALTER TABLE iceberg.lab.events_zstd_l06 EXECUTE optimize;
 
 * Down with volume remove: `yarn compose:clean`
 * All logs: `yarn compose:logs`
+* Service logs: `yarn compose:base logs [service]`
+* Last 10 log lines: `yarn compose:base logs [service] | tail -10`
 * Logs of the container: `yarn compose:base logs trino`
 * Force recreate container: `yarn compose:up --force-recreate trino`
 * Check iceberg.properties inside Trino: `yarn compose:exec -it trino sh -lc 'grep -n "allowed-extra" -n /etc/trino/catalog/iceberg.properties; echo; cat /etc/trino/catalog/iceberg.properties'`
