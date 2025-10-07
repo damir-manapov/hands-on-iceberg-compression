@@ -225,8 +225,10 @@ async function main() {
         LOAD.batchRows,
         cpFile
       );
+      const durationMs = Date.now() - t0;
+      const durationMinutes = (durationMs / 60000).toFixed(1);
       console.log(
-        `Load finished for ${name} in ${((Date.now() - t0) / 1000).toFixed(1)}s`
+        `Load finished for ${name} in ${durationMinutes}m`
       );
 
       if (LOAD.compactAfterLoad) {
