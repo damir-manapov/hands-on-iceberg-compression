@@ -69,6 +69,7 @@ ALTER TABLE iceberg.lab.events_zstd_l06 EXECUTE optimize;
 * Force recreate container: `yarn compose:up --force-recreate trino`
 * Check iceberg.properties inside Trino: `yarn compose:exec -it trino sh -lc 'grep -n "allowed-extra" -n /etc/trino/catalog/iceberg.properties; echo; cat /etc/trino/catalog/iceberg.properties'`
 * Check Trino session catalog: `yarn compose:exec -it trino trino --execute "SHOW CATALOGS"`
+* Show tables in iceberg schema: `yarn compose:exec -it trino trino --execute "SHOW TABLES FROM iceberg.lab"`
 * Try to create trino iceberg catalog manually with compression: ```
 yarn compose:exec -it trino trino --execute "
 CREATE SCHEMA IF NOT EXISTS iceberg.lab;
