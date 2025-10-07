@@ -26,6 +26,29 @@ import { TABLE_CONFIG } from "../config/tableConfig";
 import { LOAD } from "../config/load";
 import { CODECS } from "../config/codecs";
 
+function formatETA(ms: number): string {
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+  if (ms < 3600000) return `${(ms / 60000).toFixed(1)}m`;
+  return `${(ms / 3600000).toFixed(1)}h`;
+}
+
+function calculateBatchETA(
+  completedBatches: number,
+  totalBatches: number,
+  startTime: number,
+  currentTime: number
+): string {
+  if (completedBatches === 0) return "calculating...";
+  
+  const elapsed = currentTime - startTime;
+  const rate = completedBatches / elapsed; // batches per ms
+  const remaining = totalBatches - completedBatches;
+  const etaMs = remaining / rate;
+  
+  return formatETA(etaMs);
+}
+
 async function loadTable(
   client: TrinoClient,
   limiter: Limiter,
@@ -44,6 +67,16 @@ async function loadTable(
     // Checkpoint file doesn't exist or is invalid, start fresh
   }
   const pending = batches.filter(b => !cp.completedBatches.includes(b.index));
+  
+  if (pending.length === 0) {
+    console.log(`✓ All batches already completed for ${tableName}`);
+    return;
+  }
+
+  const startTime = Date.now();
+  const totalBatches = batches.length;
+
+  console.log(`\n📊 Loading ${tableName}: ${pending.length}/${totalBatches} batches remaining`);
 
   await Promise.all(
     pending.map(b =>
@@ -52,13 +85,19 @@ async function loadTable(
         const sql = buildInsertSQL(b.start, b.end, cfg, tableName);
         const t0 = Date.now();
         try {
-          console.log(`→ INSERT ${label}`);
+          // Calculate ETA before starting the batch
+          const eta = calculateBatchETA(cp.completedBatches.length, totalBatches, startTime, Date.now());
+          console.log(`→ INSERT ${label} (ETA: ${eta})`);
           await client.execute(sql);
-          console.log(
-            `✔ OK ${label} in ${((Date.now() - t0) / 1000).toFixed(1)}s`
-          );
+          const duration = ((Date.now() - t0) / 1000).toFixed(1);
+          
+          // Update completed batches
           cp.completedBatches.push(b.index);
           cp.completedBatches.sort((a, z) => a - z);
+          const progress = ((cp.completedBatches.length / totalBatches) * 100).toFixed(1);
+          console.log(
+            `✔ OK ${label} in ${duration}s (${progress}% complete)`
+          );
           fs.writeFileSync(cpFile, JSON.stringify(cp), "utf-8");
         } catch (e: any) {
           const message = `✖ FAIL ${label}: ${e?.message || e}\n\nSql:${sql}`;
