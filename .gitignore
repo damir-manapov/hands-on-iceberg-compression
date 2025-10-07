@@ -2,3 +2,4 @@ node_modules/
 .checkpoints
 results_sizes.csv
 dist/
+.prettiercache

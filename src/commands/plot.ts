@@ -6,17 +6,29 @@ import { parse } from "csv-parse/sync";
 // Chart.js v4 + node-canvas wrapper
 import {
   Chart,
-  BarController, BarElement,
-  CategoryScale, LinearScale,
-  Legend, Title, Tooltip
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Title,
+  Tooltip,
 } from "chart.js";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 
 // Register the pieces we use
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip);
+Chart.register(
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Title,
+  Tooltip
+);
 
 const ROOT = process.cwd();
-const inCsv = path.join(ROOT, "results_sizes.csv");         // adjust if needed
+const inCsv = path.join(ROOT, "results_sizes.csv"); // adjust if needed
 const outDir = path.join(ROOT, "assets");
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -28,7 +40,7 @@ type Rec = {
   rows?: string | number;
   data_bytes?: string | number;
   bytes_per_row?: string | number;
-  total_bytes?: string | number;          // may be missing if you didn’t include manifests
+  total_bytes?: string | number; // may be missing if you didn’t include manifests
 };
 
 const toNum = (v: any): number => {
@@ -56,20 +68,23 @@ const data = rows.map(r => ({
   codec: r.codec,
   level: String(r.level ?? ""),
   rows: toNum(r.rows),
-  dataBytes: toNum(r.total_bytes ?? r.data_bytes),   // prefer total_bytes if present
-  bpr: toNum(r.bytes_per_row)
+  dataBytes: toNum(r.total_bytes ?? r.data_bytes), // prefer total_bytes if present
+  bpr: toNum(r.bytes_per_row),
 }));
 
 // Sort by codec then level (numeric where possible)
 data.sort((a, b) => {
   if (a.codec !== b.codec) return a.codec.localeCompare(b.codec);
-  const al = Number(a.level), bl = Number(b.level);
+  const al = Number(a.level),
+    bl = Number(b.level);
   if (!Number.isNaN(al) && !Number.isNaN(bl)) return al - bl;
   return String(a.level).localeCompare(String(b.level));
 });
 
 // Labels look like: zstd:l06 (events_zstd_l06)
-const labels = data.map(d => `${d.codec}:${d.level.toString().padStart(2, "0")}`);
+const labels = data.map(
+  d => `${d.codec}:${d.level.toString().padStart(2, "0")}`
+);
 
 // Build datasets grouped by codec (nice for side-by-side comparison)
 const codecs = Array.from(new Set(data.map(d => d.codec)));
@@ -87,10 +102,16 @@ const seriesBytes = codecs.map(codec => {
 // Chart settings
 const width = 1200;
 const height = 600;
-const chart = new ChartJSNodeCanvas({ width, height, type: 'svg' });
+const chart = new ChartJSNodeCanvas({ width, height, type: "svg" });
 
 // Reusable render
-async function renderBar(filename: string, title: string, yTitle: string, datasets: {label: string; data: (number | null | undefined)[]}[], logScale = false) {
+async function renderBar(
+  filename: string,
+  title: string,
+  yTitle: string,
+  datasets: { label: string; data: (number | null | undefined)[] }[],
+  logScale = false
+) {
   const cfg = {
     type: "bar" as const,
     data: {
@@ -109,25 +130,27 @@ async function renderBar(filename: string, title: string, yTitle: string, datase
           callbacks: {
             label: (ctx: any) => {
               const v = ctx.parsed.y;
-              if (v == null || Number.isNaN(v)) return `${ctx.dataset.label}: n/a`;
-              if (yTitle.toLowerCase().includes("bytes")) return `${ctx.dataset.label}: ${humanSize(v)}`;
+              if (v == null || Number.isNaN(v))
+                return `${ctx.dataset.label}: n/a`;
+              if (yTitle.toLowerCase().includes("bytes"))
+                return `${ctx.dataset.label}: ${humanSize(v)}`;
               return `${ctx.dataset.label}: ${prettyNumber(v)}`;
-            }
-          }
-        }
+            },
+          },
+        },
       },
       scales: {
         x: { ticks: { autoSkip: false, maxRotation: 60, minRotation: 30 } },
         y: {
           beginAtZero: true,
           type: logScale ? ("logarithmic" as const) : ("linear" as const),
-          title: { display: true, text: yTitle }
-        }
-      }
-    }
+          title: { display: true, text: yTitle },
+        },
+      },
+    },
   };
 
-  const svg = chart.renderToBufferSync(cfg as any, 'image/svg+xml');
+  const svg = chart.renderToBufferSync(cfg as any, "image/svg+xml");
   const full = path.join(outDir, filename);
   console.log(full);
   fs.writeFileSync(full, svg);
@@ -146,15 +169,30 @@ function humanSize(bytes: number): string {
   const units = ["B", "KB", "MB", "GB", "TB", "PB"];
   let u = 0;
   let b = bytes;
-  while (b >= thresh && u < units.length - 1) { b /= thresh; u++; }
+  while (b >= thresh && u < units.length - 1) {
+    b /= thresh;
+    u++;
+  }
   return `${b.toFixed(1)} ${units[u]}`;
 }
 
 // Render charts
 (async () => {
   // 1) Bytes per row (linear)
-  await renderBar("bytes_per_row.svg", "Bytes per Row (lower is better)", "Bytes per row", seriesBPR, false);
+  await renderBar(
+    "bytes_per_row.svg",
+    "Bytes per Row (lower is better)",
+    "Bytes per row",
+    seriesBPR,
+    false
+  );
 
   // 2) Total data bytes (log scale helps if you compare gzip vs zstd at different levels)
-  await renderBar("total_data_bytes.svg", "Total Data Bytes per Table", "Bytes (log)", seriesBytes, true);
+  await renderBar(
+    "total_data_bytes.svg",
+    "Total Data Bytes per Table",
+    "Bytes (log)",
+    seriesBytes,
+    true
+  );
 })();

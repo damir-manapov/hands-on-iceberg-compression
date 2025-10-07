@@ -1,8 +1,10 @@
-import {TrinoConfig} from "./types";
+import { TrinoConfig } from "./types";
 
 export class TrinoClient {
   constructor(private cfg: TrinoConfig) {}
-  private baseUrl() { return `${this.cfg.host}:${this.cfg.port}`; }
+  private baseUrl() {
+    return `${this.cfg.host}:${this.cfg.port}`;
+  }
   private headers(): Record<string, string> {
     const h: Record<string, string> = {
       "X-Trino-User": this.cfg.user,
@@ -12,7 +14,8 @@ export class TrinoClient {
     if (this.cfg.source) h["X-Trino-Source"] = this.cfg.source;
     if (this.cfg.basicAuth) {
       const { username, password } = this.cfg.basicAuth;
-      h["Authorization"] = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+      h["Authorization"] =
+        `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
     }
     return h;
   }
@@ -26,12 +29,17 @@ export class TrinoClient {
   private async _run<T = any>(sql: string, collect: boolean): Promise<T[]> {
     const res = await fetch(`${this.baseUrl()}/v1/statement`, {
       method: "POST",
-      headers: { "Content-Type": "text/plain; charset=utf-8", ...this.headers() },
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        ...this.headers(),
+      },
       body: sql,
     });
-    if (!res.ok) throw new Error(`Trino POST ${res.status}: ${await res.text()}`);
+    if (!res.ok)
+      throw new Error(`Trino POST ${res.status}: ${await res.text()}`);
     let payload: any = await res.json();
-    let colNames: string[] | null = payload.columns?.map((c: any) => c.name) ?? null;
+    let colNames: string[] | null =
+      payload.columns?.map((c: any) => c.name) ?? null;
     const rowsArr: any[][] = [];
 
     const take = (p: any) => {
@@ -49,9 +57,11 @@ export class TrinoClient {
     take(payload);
 
     while (payload.nextUri) {
-      if (payload.error) throw new Error(`Trino error: ${payload.error.message}`);
+      if (payload.error)
+        throw new Error(`Trino error: ${payload.error.message}`);
       const poll = await fetch(payload.nextUri, { headers: this.headers() });
-      if (!poll.ok) throw new Error(`Trino poll ${poll.status}: ${await poll.text()}`);
+      if (!poll.ok)
+        throw new Error(`Trino poll ${poll.status}: ${await poll.text()}`);
       payload = await poll.json();
       if (!colNames && payload.columns) {
         // late columns; extremely rare

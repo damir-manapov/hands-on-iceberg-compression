@@ -86,6 +86,8 @@ WITH (sorted_by = ARRAY['order_date']);
 
 * Type check: `yarn lint`
 * Lint and fix: `yarn lint:fix`
+* Format code: `yarn format`
+* Check formatting: `yarn format:check`
 
 # Benchmark
 
