@@ -20,8 +20,8 @@ export const LOAD = {
 // wide table:
 // 1ml -> 300mb, 1.1min
 // 10ml -> 3gb, 7min
-// 100ml -> 30gb, ~2h
-// billion -> 300gb, ~19h
+// 100ml -> 30gb, 50min
+// billion -> 300gb, ~10h
 
 // narrow table:
 // 1ml -> 30mb, 6sec
