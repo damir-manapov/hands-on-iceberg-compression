@@ -7,7 +7,6 @@ It cotains docker compose to get all up and runnig, generates charts and gives y
 * Start environment `yarn compose:up`
 * Define compression codecs and their respective compression levels: `src/config/codecs.ts`
 * Define your schema: `src/config/tableConfig.ts`
-* Run environment: `yarn compose:up`
 * Run bench: `yarn bench` or `yarn rebench` if you would like to start from scratch deleting checkpoints
 * Generate charts (uses svg to not bloat git with binary data): `yarn plot`
 * Lint code: `yarn lint` (TypeScript type checking) or `yarn lint:fix` (ESLint with auto-fix)

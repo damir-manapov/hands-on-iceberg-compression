@@ -15,25 +15,25 @@ import {
   SizeRow,
   TableConfig,
   TrinoConfig,
-} from "./types";
-import { TrinoClient } from "./TrinoClient";
+} from "../types";
+import { TrinoClient } from "../TrinoClient";
 import {
   buildInsertSQL,
   createBaseTableSQL,
   createSchemaSQL,
   createSelectExamplesSQL,
   createVariantTableSQLs,
-} from "./sqlHelpers";
+} from "../sqlHelpers";
 import {
   ensureDir,
   humanNumber,
   humanSize,
   makeBatches,
-} from "./utils";
-import { Limiter } from "./Limiter";
-import { TABLE_CONFIG } from "./config/tableConfig";
-import { LOAD } from "./config/load";
-import { CODECS } from "./config/codecs";
+} from "../utils";
+import { Limiter } from "../Limiter";
+import { TABLE_CONFIG } from "../config/tableConfig";
+import { LOAD } from "../config/load";
+import { CODECS } from "../config/codecs";
 
 async function loadTable(
   client: TrinoClient,
