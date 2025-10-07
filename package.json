@@ -4,10 +4,16 @@
   "main": "index.js",
   "scripts": {
     "rmcheckpoints": "rm -rf .checkpoints",
-    "rebench": "npm run rmcheckpoints & npm run bench",
+    "rebench": "yarn rmcheckpoints & yarn bench",
     "bench": "tsx src/bench.ts",
     "plot": "tsx src/plot.ts",
-    "bench:all": "npm run bench && npm run plot"
+    "bench:all": "yarn bench && yarn plot",
+    "compose:up": "docker compose up -d",
+    "compose:down": "docker compose down",
+    "compose:restart": "yarn compose:down && yarn compose:up",
+    "compose:logs": "docker compose logs -f --tail=300",
+    "compose:ps": "docker compose ps",
+    "compose:clean": "docker compose down -v --remove-orphans"
   },
   "author": "Damir Manapov",
   "devDependencies": {

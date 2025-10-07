@@ -8,15 +8,26 @@ It cotains docker compose to get all up and runnig, generates charts and gives y
 * Define compression codecs and their respective compression levels: `src/config/codecs.ts`
 * Define your schema: `src/config/tableConfig.ts`
 * Run environment: `docker compose up -d`
-* Run bench: `npm run bench` or `npm run rebench` if you would like to start from scratch deleting checkpoints
-* Generate charts (uses svg to not bloat git with binary data): `npm run plot`
+* Run bench: `yarn bench` or `yarn rebench` if you would like to start from scratch deleting checkpoints
+* Generate charts (uses svg to not bloat git with binary data): `yarn plot`
 * Stop environment with volumes deletion: `docker compose down -v`
-* Clear `.checkpoints` if you want to rerun generation: `npm run rmcheckpoints`
-* Del environments and restart from scratch: `docker compose down -v && docker compose up -d && sleep 5 && npm run rebench`
+* Clear `.checkpoints` if you want to rerun generation: `yarn rmcheckpoints`
+* Del environments and restart from scratch: `docker compose down -v && docker compose up -d && sleep 5 && yarn rebench`
+
+## Docker Compose via yarn scripts
+
+You can manage the stack using convenient yarn scripts (wrapping `docker compose`):
+
+* Start: `yarn compose:up`
+* Stop: `yarn compose:down`
+* Restart: `yarn compose:restart`
+* Logs (follow): `yarn compose:logs`
+* Status: `yarn compose:ps`
+* Clean teardown (remove volumes/orphans): `yarn compose:clean`
 
 # Start environment
 ```sh
-docker compose up -d
+yarn compose:up
 ```
 
 ## Dashboards / endpoints
@@ -50,8 +61,8 @@ ALTER TABLE iceberg.lab.events_zstd_l06 EXECUTE optimize;
 
 ## Troubleshooting
 
-* Down with volume remove: `docker compose down -v`
-* All logs: `docker compose logs -f`
+* Down with volume remove: `yarn compose:clean`
+* All logs: `yarn compose:logs`
 * Logs of the container: `docker compose logs trino`
 * Force recreate container: `docker compose up -d --force-recreate trino`
 * Check iceberg.properties inside Trino: `docker compose exec -it trino sh -lc 'grep -n "allowed-extra" -n /etc/trino/catalog/iceberg.properties; echo; cat /etc/trino/catalog/iceberg.properties'`
@@ -71,8 +82,8 @@ WITH (sorted_by = ARRAY['order_date']);
 
 # Benchmark
 
-* Run: `npm run bench`
-* Generate charts: `npm run plot`
+* Run: `yarn bench`
+* Generate charts: `yarn plot`
 
 ![bytes_per_row](./assets/bytes_per_row.svg)
 ![total_data_bytes](./assets/total_data_bytes.svg)
